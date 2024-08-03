@@ -65,37 +65,39 @@ void _downloadLatestVersion(
   basePath ??= Env.basePath ?? p.current;
   final release = await _getLatestRelease(owner, repo);
 
-  release.assets
-      ?.where((element) => element.name!.contains(Platform.operatingSystem))
-      .forEach((element) {
-    Globals.logger.info('Downloading ${element.name}, size: ${element.size}');
+  final asset = release.assets?.firstWhere(
+      (element) => element.name!.contains(Platform.operatingSystem));
 
-    Globals.github.request(
-      'GET',
-      'repos/$owner/$repo/releases/assets/${element.id!}',
-      headers: {'Accept': 'application/octet-stream'},
-    ).then((value) {
-      Globals.logger.info('Downloaded file ${element.name}\nExtracting..');
+  if (asset == null) {
+    Globals.logger.severe(
+      'No asset found for platform, Repo: $repo, Release: ${release.tagName}, OS Keyword: ${Platform.operatingSystem}',
+    );
+    throw Exception('Cannot find platform asset');
+  }
 
-      print(p.extension(element.name!));
-      if (p.extension(element.name!) == '.zip') {
-        extractArchiveToDisk(
-          ZipDecoder().decodeBytes(value.bodyBytes),
-          p.join(basePath!, '${repo}_zip'),
-        );
-      } else if (p.extension(element.name!, 2) == '.tar.gz') {
-        extractArchiveToDisk(
-            TarDecoder()
-                .decodeBytes(GZipDecoder().decodeBytes(value.bodyBytes)),
-            p.join(basePath!, '${repo}_tar'));
-      } else {
-        File(p.join(basePath!, element.name!))
-            .writeAsBytesSync(value.bodyBytes);
-      }
-    });
+  Globals.logger.info('Downloading ${asset.name}, size: ${asset.size}');
 
-    File(p.join(basePath!, versionFileName))
-        .writeAsStringSync(release.tagName!);
+  await Globals.github.request(
+    'GET',
+    'repos/$owner/$repo/releases/assets/${asset.id!}',
+    headers: {'Accept': 'application/octet-stream'},
+  ).then((value) {
+    Globals.logger.info('Downloaded file ${asset.name}\nExtracting..');
+
+    if (p.extension(asset.name!) == '.zip') {
+      extractArchiveToDisk(
+        ZipDecoder().decodeBytes(value.bodyBytes),
+        p.join(basePath!, '${repo}_zip'),
+      );
+    } else if (p.extension(asset.name!, 2) == '.tar.gz') {
+      extractArchiveToDisk(
+          TarDecoder().decodeBytes(GZipDecoder().decodeBytes(value.bodyBytes)),
+          p.join(basePath!, '${repo}_tar'));
+    } else {
+      File(p.join(basePath!, asset.name!)).writeAsBytesSync(value.bodyBytes);
+    }
+
+    File(p.join(basePath, versionFileName)).writeAsStringSync(release.tagName!);
   });
 }
 
