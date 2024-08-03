@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
 import 'package:github/github.dart';
 import 'package:ivc_launcher/globals.dart';
@@ -25,12 +24,14 @@ Future<String?> getLatestClientVersion() => _getLatestVerion(
 void downloadLatestApi({String? path}) async => _downloadLatestVersion(
       Env.apiRepoOwner,
       Env.apiRepoName,
+      Constants.kApiVersionFile,
     );
 
 /// Downloads the latest client version to current application directory.
 void downloadLatestClient({String? path}) async => _downloadLatestVersion(
       Env.clientRepoOwner,
       Env.clientRepoName,
+      Constants.kClientVersionFile,
     );
 
 /// Check whether there is a new version of this launcher.
@@ -57,12 +58,17 @@ Future<String?> _getLatestVerion(
 
 void _downloadLatestVersion(
   String owner,
-  String repo, {
-  String? path,
+  String repo,
+  String versionFileName, {
+  String? basePath,
 }) async {
+  basePath ??=
+      bool.hasEnvironment('DEBUG') ? p.join(p.current, 'binary') : p.current;
   final release = await _getLatestRelease(owner, repo);
 
-  release.assets?.forEach((element) {
+  release.assets
+      ?.where((element) => element.name!.contains(Platform.operatingSystem))
+      .forEach((element) {
     Globals.logger.info('Downloading ${element.name}, size: ${element.size}');
 
     Globals.github.request(
@@ -76,18 +82,21 @@ void _downloadLatestVersion(
       if (p.extension(element.name!) == '.zip') {
         extractArchiveToDisk(
           ZipDecoder().decodeBytes(value.bodyBytes),
-          p.join(p.current, '${repo}_zip'),
+          p.join(basePath!, '${repo}_zip'),
         );
       } else if (p.extension(element.name!, 2) == '.tar.gz') {
         extractArchiveToDisk(
             TarDecoder()
                 .decodeBytes(GZipDecoder().decodeBytes(value.bodyBytes)),
-            p.join(p.current, '${repo}_tar'));
+            p.join(basePath!, '${repo}_tar'));
       } else {
-        File(p.join(path ?? p.current, element.name!))
+        File(p.join(basePath!, element.name!))
             .writeAsBytesSync(value.bodyBytes);
       }
     });
+
+    File(p.join(basePath!, versionFileName))
+        .writeAsStringSync(release.tagName!);
   });
 }
 

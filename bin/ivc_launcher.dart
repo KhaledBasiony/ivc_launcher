@@ -3,10 +3,15 @@ import 'dart:async';
 import 'package:ivc_launcher/github_service.dart';
 import 'package:ivc_launcher/globals.dart';
 import 'package:ivc_launcher/utils.dart';
+import 'package:logging/logging.dart';
 
 void main(List<String> arguments) async {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    print('${record.level} @ ${record.time}: ${record.message}');
+  });
   // Check API update.
-  // await tryUpdateApi();
+  await tryUpdateApi();
   await tryUpdateClient();
 }
 
@@ -38,6 +43,7 @@ Future<void> _tryUpdate(
       throw Exception('Cannot fetch $name release or detect current $name.');
     } else {
       await downloadLatestCallback();
+      return;
     }
   } else if (latestVersion == null) {
     Globals.logger.warning(
@@ -49,5 +55,6 @@ Future<void> _tryUpdate(
     return;
   } else {
     await downloadLatestCallback();
+    return;
   }
 }
