@@ -12,6 +12,8 @@ abstract class Globals {
   );
 
   static final logger = Logger('Launcher');
+
+  static final customEnv = <String, String>{};
 }
 
 abstract class Env {
