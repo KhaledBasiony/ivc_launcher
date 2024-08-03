@@ -15,6 +15,9 @@ abstract class Globals {
 }
 
 abstract class Env {
+  static const basePath = bool.hasEnvironment('BASE_PATH')
+      ? String.fromEnvironment('BASE_PATH')
+      : null;
   static const apiRepoOwner = String.fromEnvironment('API_OWNER');
   static const apiRepoName = String.fromEnvironment('API_REPO');
 

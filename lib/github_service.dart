@@ -62,8 +62,7 @@ void _downloadLatestVersion(
   String versionFileName, {
   String? basePath,
 }) async {
-  basePath ??=
-      bool.hasEnvironment('DEBUG') ? p.join(p.current, 'binary') : p.current;
+  basePath ??= Env.basePath ?? p.current;
   final release = await _getLatestRelease(owner, repo);
 
   release.assets
