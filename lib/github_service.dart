@@ -21,17 +21,20 @@ Future<String?> getLatestClientVersion() => _getLatestVerion(
     );
 
 /// Downloads the latest api version to current application directory.
-void downloadLatestApi({String? path}) async => _downloadLatestVersion(
+Future<String> downloadLatestApi({String? path}) => _downloadLatestVersion(
       Env.apiRepoOwner,
       Env.apiRepoName,
       Constants.kApiVersionFile,
     );
 
 /// Downloads the latest client version to current application directory.
-void downloadLatestClient({String? path}) async => _downloadLatestVersion(
+///
+/// Returns the path of the downloaded directory
+Future<String> downloadLatestClient({String? path}) => _downloadLatestVersion(
       Env.clientRepoOwner,
       Env.clientRepoName,
       Constants.kClientVersionFile,
+      basePath: path,
     );
 
 /// Check whether there is a new version of this launcher.
@@ -56,7 +59,7 @@ Future<String?> _getLatestVerion(
   return release?.tagName;
 }
 
-void _downloadLatestVersion(
+Future<String> _downloadLatestVersion(
   String owner,
   String repo,
   String versionFileName, {
@@ -77,28 +80,34 @@ void _downloadLatestVersion(
 
   Globals.logger.info('Downloading ${asset.name}, size: ${asset.size}');
 
-  await Globals.github.request(
+  final downloadedBytes = await Globals.github.request(
     'GET',
     'repos/$owner/$repo/releases/assets/${asset.id!}',
     headers: {'Accept': 'application/octet-stream'},
-  ).then((value) {
-    Globals.logger.info('Downloaded file ${asset.name}\nExtracting..');
+  ).then((value) => value.bodyBytes);
+  Globals.logger.info('Downloaded file ${asset.name}\nExtracting..');
 
-    if (p.extension(asset.name!) == '.zip') {
-      extractArchiveToDisk(
-        ZipDecoder().decodeBytes(value.bodyBytes),
-        p.join(basePath!, '${repo}_zip'),
-      );
-    } else if (p.extension(asset.name!, 2) == '.tar.gz') {
-      extractArchiveToDisk(
-          TarDecoder().decodeBytes(GZipDecoder().decodeBytes(value.bodyBytes)),
-          p.join(basePath!, '${repo}_tar'));
-    } else {
-      File(p.join(basePath!, asset.name!)).writeAsBytesSync(value.bodyBytes);
-    }
+  final String resultPath;
+  if (p.extension(asset.name!) == '.zip') {
+    resultPath = p.join(basePath, repo);
+    extractArchiveToDisk(
+      ZipDecoder().decodeBytes(downloadedBytes),
+      resultPath,
+    );
+  } else if (p.extension(asset.name!, 2) == '.tar.gz') {
+    resultPath = p.join(basePath, repo);
+    extractArchiveToDisk(
+      TarDecoder().decodeBytes(GZipDecoder().decodeBytes(downloadedBytes)),
+      resultPath,
+    );
+  } else {
+    resultPath = p.join(basePath, asset.name!);
+    File(resultPath).writeAsBytesSync(downloadedBytes);
+  }
 
-    File(p.join(basePath, versionFileName)).writeAsStringSync(release.tagName!);
-  });
+  File(p.join(basePath, versionFileName)).writeAsStringSync(release.tagName!);
+
+  return resultPath;
 }
 
 Future<Release> _getLatestRelease(String owner, String repo) =>
