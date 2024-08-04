@@ -35,7 +35,7 @@ jobs:
       
       - name: Build for ${{ matrix.os }}
         run: |
-          mkdir -R ${{ env.RELEASE_DIR }}
+          mkdir -p ${{ env.RELEASE_DIR }}
           dart compile exe -DBASE_PATH=${{ vars.BASE_PATH }} -DAPI_REPO=${{ vars.API_REPO }} -DAPI_OWNER=${{ vars.API_OWNER }} -DCLIENT_REPO=${{ vars.CLIENT_REPO }} -DCLIENT_OWNER=${{ vars.CLIENT_OWNER }} -DGITHUB_TOKEN=${{ secrets.REPO_ACCESS_PAT }} -o ${{ env.RELEASE_DIR }}/${{ matrix.output-name }} bin/ivc_launcher.dart
 
       - name: Create Release Archive
