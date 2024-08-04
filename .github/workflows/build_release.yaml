@@ -35,14 +35,8 @@ jobs:
       
       - name: Build for ${{ matrix.os }}
         run: |
-          dart compile exe \
-          --define=BASE_PATH=${{ vars.BASE_PATH }}\
-          --define=API_REPO=${{ vars.API_REPO }}\
-          --define=API_OWNER=${{ vars.API_OWNER }}\
-          --define=CLIENT_REPO=${{ vars.CLIENT_REPO }}\
-          --define=CLIENT_OWNER=${{ vars.CLIENT_OWNER }}\
-          --define=GITHUB_TOKEN=${{ secrets.REPO_ACCESS_PAT }}\
-          bin/ivc_launcher.dart -o ${{ env.RELEASE_DIR }}/${{ matrix.output-name }}
+          mkdir -R ${{ env.RELEASE_DIR }}
+          dart compile exe -DBASE_PATH=${{ vars.BASE_PATH }} -DAPI_REPO=${{ vars.API_REPO }} -DAPI_OWNER=${{ vars.API_OWNER }} -DCLIENT_REPO=${{ vars.CLIENT_REPO }} -DCLIENT_OWNER=${{ vars.CLIENT_OWNER }} -DGITHUB_TOKEN=${{ secrets.REPO_ACCESS_PAT }} -o ${{ env.RELEASE_DIR }}/${{ matrix.output-name }} bin/ivc_launcher.dart
 
       - name: Create Release Archive
         uses: ihiroky/archive-action@v1
