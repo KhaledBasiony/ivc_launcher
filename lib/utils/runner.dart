@@ -47,6 +47,7 @@ Future<void> _startWindows() async {
     workingDirectory: p.dirname(serverExe),
     runInShell: true,
   );
+  serverProc.stdout.pipe(stdout);
   ProcessSignal.sigint.watch().listen((event) {
     serverProc.kill();
     exit(event.signalNumber);
