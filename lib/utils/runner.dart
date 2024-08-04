@@ -37,7 +37,7 @@ Future<void> _startWindows() async {
 
   final serverProc = await Process.start(
     'Start-Process',
-    ['-FilePath', '"$serverExe"', '-Wait'],
+    ['-FilePath', '$serverExe', '-Wait'],
     environment: Globals.customEnv,
     workingDirectory: p.dirname(serverExe),
   );
