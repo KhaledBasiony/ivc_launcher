@@ -10,9 +10,9 @@ Future<void> startApp() => switch (Platform.operatingSystem) {
     };
 
 Future<void> _startLinux() async {
+  Globals.logger.info('Starting Api Server...');
   final serverExe = Globals.executables['api']!;
   Process.runSync('chmod', ['u+x', serverExe]);
-
   await Process.start(
     'xterm',
     ['-hold', '-e', serverExe],
@@ -22,6 +22,7 @@ Future<void> _startLinux() async {
     mode: ProcessStartMode.detached,
   );
 
+  Globals.logger.info('Starting Client Application...');
   final clientExe = Globals.executables['client']!;
   Process.runSync('chmod', ['u+x', clientExe]);
   Process.start(
@@ -33,11 +34,15 @@ Future<void> _startLinux() async {
 }
 
 Future<void> _startWindows() async {
+  Globals.logger.info('Starting Api Server...');
   final serverExe = Globals.executables['api']!;
-
   final serverProc = await Process.start(
     'Start-Process',
-    ['-Wait', '-FilePath', serverExe],
+    [
+      '-FilePath',
+      serverExe,
+      '-Wait',
+    ],
     environment: Globals.customEnv,
     workingDirectory: p.dirname(serverExe),
     runInShell: true,
@@ -47,6 +52,7 @@ Future<void> _startWindows() async {
     exit(event.signalNumber);
   });
 
+  Globals.logger.info('Starting Client Application...');
   final clientExe = Globals.executables['client']!;
   Process.start(
     clientExe,

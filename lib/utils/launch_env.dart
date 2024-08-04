@@ -80,6 +80,8 @@ Future<void> ensureEnvironment({String? basePath}) async {
 
   Globals.customEnv['CLIENT_ORIGIN'] = 'http://localhost:8000';
   Globals.customEnv['REALM_DISABLE_ANALYTICS'] = 'true';
+
+  Globals.logger.info('Creating environment: done!');
 }
 
 /// Starts the application.
