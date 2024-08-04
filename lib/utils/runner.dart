@@ -46,6 +46,7 @@ Future<void> _startWindows() async {
     environment: Globals.customEnv,
     workingDirectory: p.dirname(serverExe),
     runInShell: true,
+    mode: ProcessStartMode.detached,
   );
   serverProc.stdout.pipe(stdout);
   ProcessSignal.sigint.watch().listen((event) {
