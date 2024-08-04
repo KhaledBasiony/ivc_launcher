@@ -90,13 +90,13 @@ Future<String> _downloadLatestVersion(
   final String resultPath;
   if (p.extension(asset.name!) == '.zip') {
     resultPath = p.join(basePath, repo);
-    extractArchiveToDisk(
+    await extractArchiveToDisk(
       ZipDecoder().decodeBytes(downloadedBytes),
       resultPath,
     );
   } else if (p.extension(asset.name!, 2) == '.tar.gz') {
     resultPath = p.join(basePath, repo);
-    extractArchiveToDisk(
+    await extractArchiveToDisk(
       TarDecoder().decodeBytes(GZipDecoder().decodeBytes(downloadedBytes)),
       resultPath,
     );
