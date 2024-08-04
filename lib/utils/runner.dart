@@ -37,9 +37,10 @@ Future<void> _startWindows() async {
 
   final serverProc = await Process.start(
     'Start-Process',
-    ['-FilePath', '$serverExe', '-Wait'],
+    ['-Wait', '-FilePath', serverExe],
     environment: Globals.customEnv,
     workingDirectory: p.dirname(serverExe),
+    runInShell: true,
   );
   ProcessSignal.sigint.watch().listen((event) {
     serverProc.kill();
