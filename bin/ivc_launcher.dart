@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ivc_launcher/utils/runner.dart';
 import 'package:ivc_launcher/utils/updates.dart';
 import 'package:ivc_launcher/utils/launch_env.dart';
 import 'package:logging/logging.dart';
@@ -19,4 +20,7 @@ void main(List<String> arguments) async {
 
   // Ensure Environment is Set before launching.
   await ensureEnvironment();
+
+  // Launch App
+  await startApp();
 }
