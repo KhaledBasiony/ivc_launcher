@@ -37,12 +37,8 @@ Future<void> _startWindows() async {
   Globals.logger.info('Starting Api Server...');
   final serverExe = Globals.executables['api']!;
   final serverProc = await Process.start(
-    'Start-Process',
-    [
-      '-FilePath',
-      serverExe,
-      '-Wait',
-    ],
+    serverExe,
+    [],
     environment: Globals.customEnv,
     workingDirectory: p.dirname(serverExe),
     runInShell: true,
