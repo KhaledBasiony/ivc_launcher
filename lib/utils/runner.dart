@@ -48,7 +48,6 @@ Future<void> _startWindows() async {
     runInShell: true,
     mode: ProcessStartMode.detached,
   );
-  serverProc.stdout.pipe(stdout);
   ProcessSignal.sigint.watch().listen((event) {
     serverProc.kill();
     exit(event.signalNumber);
