@@ -48,11 +48,12 @@ Future<void> ensureEnvironment({String? basePath}) async {
 
   final secretsFileMap = <String, String>{
     'DEDICATED_API_KEY_FILE': p.join(secretsDir.path, 'dedicated_api_key'),
+    'DEDICATED_APP_ID_FILE': dedicatedAppIdFile.path,
     'SHARED_API_KEY_FILE': p.join(secretsDir.path, 'shared_api_key'),
+    'SHARED_APP_ID_FILE': sharedAppIdFile.path,
     'DBX_TOKEN_FILE': p.join(secretsDir.path, 'dropbox_token'),
     'PASSPHRASE_FILE': p.join(secretsDir.path, 'passphrase'),
-    'API_APP_SHARED': sharedAppIdFile.readAsStringSync().trim(),
-    'API_APP_DEDICATED': dedicatedAppIdFile.readAsStringSync().trim(),
+    'TELEGRAM_TOKEN_FILE': p.join(secretsDir.path, 'telegram_token'),
   };
   Globals.customEnv.addAll(secretsFileMap);
 
